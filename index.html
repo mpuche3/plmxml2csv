@@ -1,0 +1,395 @@
+<head>
+    <style>
+        h1, p {
+            font-family: Lato;
+        }
+
+        textarea {
+            width: 100%;
+            height: calc(50% - 23px);
+        }
+
+        #button {
+            width: 100%;
+            height: 30px;
+            background-color: grey;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        #button:hover {
+            background-color: black;
+        }
+    </style>
+</head>
+
+<div>
+    <textarea id="inputText"></textarea>
+    <div id="button"></div>
+    <textarea id="outputText"></textarea>
+</div>
+<script>
+
+    // Expected inputText
+    // level <tab> partNumber <tab> qty 
+    //
+
+    inputText = document.querySelector("#inputText");
+    outputText = document.querySelector("#outputText");
+    button = document.querySelector("#button");
+    //button.onclick = event=>{
+    function run() {
+        // =>
+        let arr = inputText.value.split('\n');
+
+        // =>
+        parts = arr.filter(x=>!!x).map(x=>{
+            const arr_str = x.split('\t');
+            return {
+                'level': +arr_str[0].trim(),
+                'partNumber': arr_str[1].trim(),
+                'qty': arr_str[2].trim()
+            }
+        }
+        );
+
+        parts = parts.filter(x=>x.partNumber !== undefined);
+
+        //
+        let parents = ['topNode'];
+        for (let i = 0; i < parts.length; i += 1) {
+            parts[i].children = [];
+            for (k = i + 1; k < parts.length; k += 1) {
+                if (parts[i].level + 1 === parts[k].level)
+                    parts[i].children.push({
+                        partNumber: parts[k].partNumber,
+                        qty: parts[k].qty
+                    });
+                if (parts[i].level === parts[k].level)
+                    break;
+            }
+        }
+
+        obj = {};
+        parts.map(part=>obj[part.partNumber] = part);
+
+        arrr = Object.values(obj).sort((a,b)=>{
+            if (a.level === b.level) {
+                return a.partNumber.localeCompare(b.partNumber);
+            } else {
+                return a.level - b.level;
+            }
+        }
+        );
+
+        // 
+        arrr.map(part=>{
+            part.children.sort((a,b)=>a.partNumber.localeCompare(b.partNumber))
+        }
+        )
+    }
+</script>
+
+<script>
+
+    function parseXml(xml) {
+        var dom = null;
+        if (window.DOMParser) {
+            try {
+                dom = (new DOMParser()).parseFromString(xml, "text/xml");
+            } catch (e) {
+                dom = null;
+            }
+        } else if (window.ActiveXObject) {
+            try {
+                dom = new ActiveXObject('Microsoft.XMLDOM');
+                dom.async = false;
+                if (!dom.loadXML(xml))
+                    // parse error ..
+
+                    window.alert(dom.parseError.reason + dom.parseError.srcText);
+            } catch (e) {
+                dom = null;
+            }
+        } else
+            alert("cannot parse xml string!");
+        return dom;
+    }
+
+    function xml2json(xml, tab) {
+        var X = {
+            toObj: function(xml) {
+                var o = {};
+                if (xml.nodeType == 1) {
+                    // element node ..
+                    if (xml.attributes.length)
+                        // element with attributes  ..
+                        for (var i = 0; i < xml.attributes.length; i++)
+                            o["@" + xml.attributes[i].nodeName] = (xml.attributes[i].nodeValue || "").toString();
+                    if (xml.firstChild) {
+                        // element has child nodes ..
+                        var textChild = 0
+                          , cdataChild = 0
+                          , hasElementChild = false;
+                        for (var n = xml.firstChild; n; n = n.nextSibling) {
+                            if (n.nodeType == 1)
+                                hasElementChild = true;
+                            else if (n.nodeType == 3 && n.nodeValue.match(/[^ \f\n\r\t\v]/))
+                                textChild++;
+                                // non-whitespace text
+                            else if (n.nodeType == 4)
+                                cdataChild++;
+                            // cdata section node
+                        }
+                        if (hasElementChild) {
+                            if (textChild < 2 && cdataChild < 2) {
+                                // structured element with evtl. a single text or/and cdata node ..
+                                X.removeWhite(xml);
+                                for (var n = xml.firstChild; n; n = n.nextSibling) {
+                                    if (n.nodeType == 3)
+                                        // text node
+                                        o["#text"] = X.escape(n.nodeValue);
+                                    else if (n.nodeType == 4)
+                                        // cdata node
+                                        o["#cdata"] = X.escape(n.nodeValue);
+                                    else if (o[n.nodeName]) {
+                                        // multiple occurence of element ..
+                                        if (o[n.nodeName]instanceof Array)
+                                            o[n.nodeName][o[n.nodeName].length] = X.toObj(n);
+                                        else
+                                            o[n.nodeName] = [o[n.nodeName], X.toObj(n)];
+                                    } else
+                                        // first occurence of element..
+                                        o[n.nodeName] = X.toObj(n);
+                                }
+                            } else {
+                                // mixed content
+                                if (!xml.attributes.length)
+                                    o = X.escape(X.innerXml(xml));
+                                else
+                                    o["#text"] = X.escape(X.innerXml(xml));
+                            }
+                        } else if (textChild) {
+                            // pure text
+                            if (!xml.attributes.length)
+                                o = X.escape(X.innerXml(xml));
+                            else
+                                o["#text"] = X.escape(X.innerXml(xml));
+                        } else if (cdataChild) {
+                            // cdata
+                            if (cdataChild > 1)
+                                o = X.escape(X.innerXml(xml));
+                            else
+                                for (var n = xml.firstChild; n; n = n.nextSibling)
+                                    o["#cdata"] = X.escape(n.nodeValue);
+                        }
+                    }
+                    if (!xml.attributes.length && !xml.firstChild)
+                        o = null;
+                } else if (xml.nodeType == 9) {
+                    // document.node
+                    o = X.toObj(xml.documentElement);
+                } else
+                    alert("unhandled node type: " + xml.nodeType);
+                return o;
+            },
+            toJson: function(o, name, ind) {
+                var json = name ? ("\"" + name + "\"") : "";
+                if (o instanceof Array) {
+                    for (var i = 0, n = o.length; i < n; i++)
+                        o[i] = X.toJson(o[i], "", ind + "\t");
+                    json += (name ? ":[" : "[") + (o.length > 1 ? ("\n" + ind + "\t" + o.join(",\n" + ind + "\t") + "\n" + ind) : o.join("")) + "]";
+                } else if (o == null)
+                    json += (name && ":") + "null";
+                else if (typeof (o) == "object") {
+                    var arr = [];
+                    for (var m in o)
+                        arr[arr.length] = X.toJson(o[m], m, ind + "\t");
+                    json += (name ? ":{" : "{") + (arr.length > 1 ? ("\n" + ind + "\t" + arr.join(",\n" + ind + "\t") + "\n" + ind) : arr.join("")) + "}";
+                } else if (typeof (o) == "string")
+                    json += (name && ":") + "\"" + o.toString() + "\"";
+                else
+                    json += (name && ":") + o.toString();
+                return json;
+            },
+            innerXml: function(node) {
+                var s = ""
+                if ("innerHTML"in node)
+                    s = node.innerHTML;
+                else {
+                    var asXml = function(n) {
+                        var s = "";
+                        if (n.nodeType == 1) {
+                            s += "<" + n.nodeName;
+                            for (var i = 0; i < n.attributes.length; i++)
+                                s += " " + n.attributes[i].nodeName + "=\"" + (n.attributes[i].nodeValue || "").toString() + "\"";
+                            if (n.firstChild) {
+                                s += ">";
+                                for (var c = n.firstChild; c; c = c.nextSibling)
+                                    s += asXml(c);
+                                s += "</" + n.nodeName + ">";
+                            } else
+                                s += "/>";
+                        } else if (n.nodeType == 3)
+                            s += n.nodeValue;
+                        else if (n.nodeType == 4)
+                            s += "<![CDATA[" + n.nodeValue + "]]>";
+                        return s;
+                    };
+                    for (var c = node.firstChild; c; c = c.nextSibling)
+                        s += asXml(c);
+                }
+                return s;
+            },
+            escape: function(txt) {
+                return txt.replace(/[\\]/g, "\\\\").replace(/[\"]/g, '\\"').replace(/[\n]/g, '\\n').replace(/[\r]/g, '\\r');
+            },
+            removeWhite: function(e) {
+                e.normalize();
+                for (var n = e.firstChild; n; ) {
+                    if (n.nodeType == 3) {
+                        // text node
+                        if (!n.nodeValue.match(/[^ \f\n\r\t\v]/)) {
+                            // pure whitespace text node
+                            var nxt = n.nextSibling;
+                            e.removeChild(n);
+                            n = nxt;
+                        } else
+                            n = n.nextSibling;
+                    } else if (n.nodeType == 1) {
+                        // element node
+                        X.removeWhite(n);
+                        n = n.nextSibling;
+                    } else
+                        // any other node
+                        n = n.nextSibling;
+                }
+                return e;
+            }
+        };
+        if (xml.nodeType == 9)
+            // document node
+            xml = xml.documentElement;
+        var json = X.toJson(X.toObj(X.removeWhite(xml)), xml.nodeName, "\t");
+        return "{\n" + tab + (tab ? json.replace(/\t/g, tab) : json.replace(/\t|\n/g, "")) + "\n}";
+    }
+
+    function test() {
+        const xml = document.querySelector('#inputText').value;
+        parsedXml = parseXml(xml);
+        txt = xml2json(parsedXml);
+        txt = txt.replace('undefined', '');
+        txt = txt.replace(/\@/g, '_');
+        console.log(typeof txt)
+        document.querySelector('#outputText').value = txt;
+    }
+</script>
+<script>
+
+    function addQty(arr, id) {
+        // setStr: set of unique children
+        const arrStr = arr.map(part=>part[id]);
+        const setStr = [...new Set(arrStr)];
+
+        // 
+        let children = [];
+        for (const str of setStr) {
+            let partUnique = {};
+            let qty = 0;
+            for (const part of arr) {
+                if (str === part[id]) {
+                    qty += 1;
+                    partUnique = part;
+                }
+            }
+            children.push({
+                qty: qty,
+                part: partUnique
+            });
+        }
+
+        return children;
+    }
+
+    document.querySelector("#button").onclick = event=>{
+        const xml = document.querySelector('#inputText').value;
+        parsedXml = parseXml(xml);
+        txt = xml2json(parsedXml);
+        txt = txt.replace('undefined', '');
+        txt = txt.replace(/\@/g, '_');
+        console.log(typeof txt)
+        document.querySelector('#outputText').value = txt;
+        const outputText = document.querySelector("#outputText");
+        //const input = xmlToJson(inputText.value);
+        const input = JSON.parse(txt);
+        const productInstance = input.PLMXML.ProductDef.InstanceGraph.ProductInstance
+        const productRevisionView = input.PLMXML.ProductDef.InstanceGraph.ProductRevisionView
+        prodInsObj = {};
+        prodIns = productInstance.map(x=>{
+            return {
+                id: x._id,
+                name: x._name,
+                partRef: x._partRef
+            }
+        }
+        ).map(x=>{
+            prodInsObj[x.id] = x;
+            return x;
+        }
+        );
+        prodRevViewObj = {};
+        prodRevView = productRevisionView.map(x=>{
+            return {
+                id: x._id,
+                name: x._name,
+                children: x._instanceRefs
+            }
+        }
+        ).map(x=>{
+            if (x.children !== undefined)
+                x.children = x.children.trim().split(" ");
+            return x;
+        }
+        ).map(x=>{
+            if (x.children !== undefined)
+                x.children = x.children.map(id=>prodInsObj[id]);
+            return x;
+        }
+        ).map(x=>{
+            prodRevViewObj["#" + x.id] = x;
+            return x;
+        }
+        ).map(x=>{
+            if (x.children !== undefined)
+                x.children = x.children.map(obj=>prodRevViewObj[obj.partRef]);
+            return x;
+        }
+        ).map(x=>{
+            if (x.children !== undefined)
+                x.children = x.children.sort((a,b)=>a.name.localeCompare(b.name));
+            return x;
+        }
+        ).map(x=>{
+            if (x.children !== undefined)
+                x.children = addQty(x.children, "id");
+            return x;
+        }
+        ).sort((a,b)=>a.name.localeCompare(b.name));
+
+        //document.querySelector("#outputText").value = prodIns;
+        console.log(prodRevView);
+
+        let strOutput = '';
+        for (const part of prodRevView) {
+            if (part.children !== undefined) {
+                strOutput += '\n'
+                strOutput += part.name + '\n'
+                for (child of part.children) {
+                    strOutput += part.name + '|' + child.part.name + '|' + child.qty + '\n'
+                }
+            }
+        }
+
+        document.querySelector("#outputText").value = strOutput;
+    }
+</script>
