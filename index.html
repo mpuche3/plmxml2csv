@@ -475,7 +475,7 @@
                     strOutput += '\n'
                     strOutput += part.name + '\n'
                     for (child of part.children) {
-                        strOutput += part.name + '|' + child.part.name + '|' + child.qty + '\n'
+                        strOutput += '>>> ' + child.part.name + '|' + child.qty + '\n'
                     }
                 }
             }
