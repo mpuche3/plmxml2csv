@@ -10,7 +10,7 @@
             width: 61px;
             height: 61px;
             background-color: rgb(169,169,169, 0.8);
-                        transition: 0.4s;
+            transition: 0.4s;
         }
 
         .message-container-on {
@@ -32,12 +32,12 @@
             margin-left: 30px;
         }
 
-
         #close {
+            cursor: pointer;
             display: block;
             position: absolute;
             top: 0;
-            right:12px;
+            right: 12px;
         }
 
         body {
@@ -69,6 +69,7 @@
         }
 
         .button {
+            cursor: pointer;
             flex-grow: 1;
             height: 30px;
             background-color: grey;
@@ -89,6 +90,7 @@
         }
 
         .kc_fab_main_btn {
+            cursor: pointer;
             background-color: rgba(169,169,169,0.8);
             width: 60px;
             height: 60px;
@@ -116,7 +118,9 @@
     <button class="kc_fab_main_btn">?</button>
     <div class="message-container">
         <div class="message">
-            <div id="close"><span style='font-size:40px;'>&#10006;</span></div>
+            <div id="close">
+                <span style='font-size:40px;'>&#10006;</span>
+            </div>
             <div>
                 <h3>1. Open assembly with Teamcenter Visualisation Mockup </h3>
                 <h3>2. Expand the structure </h3>
@@ -129,20 +133,13 @@
         </div>
     </div>
     <script>
-        // Expected inputText
-        // level 
-
-        //
-
         inputText = document.querySelector("#inputText");
         outputText = document.querySelector("#outputText");
         button = document.querySelector("#button");
-        //button.onclick = event=>{
+
         function run() {
-            // =>
             let arr = inputText.value.split('\n');
 
-            // =>
             parts = arr.filter(x=>!!x).map(x=>{
                 const arr_str = x.split('\t');
                 return {
@@ -155,7 +152,6 @@
 
             parts = parts.filter(x=>x.partNumber !== undefined);
 
-            //
             let parents = ['topNode'];
             for (let i = 0; i < parts.length; i += 1) {
                 parts[i].children = [];
@@ -182,7 +178,6 @@
             }
             );
 
-            // 
             arrr.map(part=>{
                 part.children.sort((a,b)=>a.partNumber.localeCompare(b.partNumber))
             }
@@ -386,11 +381,8 @@
     <script>
 
         function addQty(arr, id) {
-            // setStr: set of unique children
             const arrStr = arr.map(part=>part[id]);
             const setStr = [...new Set(arrStr)];
-
-            // 
             let children = [];
             for (const str of setStr) {
                 let partUnique = {};
@@ -406,7 +398,6 @@
                     part: partUnique
                 });
             }
-
             return children;
         }
 
@@ -419,7 +410,6 @@
             console.log(typeof txt)
             document.querySelector('#outputText').value = txt;
             const outputText = document.querySelector("#outputText");
-            //const input = xmlToJson(inputText.value);
             const input = JSON.parse(txt);
             const productInstance = input.PLMXML.ProductDef.InstanceGraph.ProductInstance
             const productRevisionView = input.PLMXML.ProductDef.InstanceGraph.ProductRevisionView
@@ -475,7 +465,6 @@
             }
             ).sort((a,b)=>a.name.localeCompare(b.name));
 
-            //document.querySelector("#outputText").value = prodIns;
             console.log(prodRevView);
 
             let strOutput = '';
@@ -509,9 +498,7 @@
             ev.preventDefault();
             document.querySelector('#inputText').classList.remove("highlightedLine");
             if (ev.dataTransfer.items) {
-                // Use DataTransferItemList interface to access the file(s)
                 for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-                    // If dropped items aren't files, reject them
                     if (ev.dataTransfer.items[i].kind === 'file') {
                         var file = ev.dataTransfer.items[i].getAsFile();
                         console.log('... file[' + i + '].name = ' + file.name);
@@ -521,7 +508,6 @@
                     }
                 }
             } else {
-                // Use DataTransfer interface to access the file(s)
                 for (var i = 0; i < ev.dataTransfer.files.length; i++) {
                     console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
                     fichero = file;
