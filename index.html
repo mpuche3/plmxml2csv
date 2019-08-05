@@ -46,21 +46,26 @@
 
         #app {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             height: 100%;
             width: 100%;
         }
 
         #buttons {
+            margin-right: 8px;
+            margin-left: 8px;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
+            justify-content: center;
         }
 
         textarea {
             padding: 5px;
-            width: 100%;
+            width: calc(100% - 316px);
             flex-grow: 1;
             resize: none;
+            white-space: nowrap;
+            overflow: auto;
         }
 
         .highlightedLine {
@@ -70,12 +75,9 @@
 
         .button {
             cursor: pointer;
-            flex-grow: 1;
-            height: 30px;
+            width: 30px;
+            height: 100%;
             background-color: grey;
-            margin-top: 8px;
-            margin-bottom: 8px;
-            margin-right: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
