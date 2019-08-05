@@ -1,32 +1,119 @@
 <head>
     <style>
-        h1, p {
-            font-family: Lato;
+        .message {
+            display: none;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            height: calc(100% - 34px);
+            width: calc(100% - 34px);
+            border: 1px solid black;
+            background: rgba(260, 260, 260, 0.9);
+            z-index: 0;
+        }
+
+        .message > :first-child {
+            margin: 50px;
+        }
+
+        body {
+            margin: 8px;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        #buttons {
+            display: flex;
+            flex-direction: row;
         }
 
         textarea {
+            padding: 5px;
             width: 100%;
-            height: calc(50% - 23px);
+            flex-grow: 1;
+            resize: none;
         }
 
-        #button {
-            width: 100%;
+        .highlightedLine {
+            border: 1px solid black;
+            border-style: dashed;
+        }
+
+        .button {
+            flex-grow: 1;
             height: 30px;
             background-color: grey;
             margin-top: 8px;
             margin-bottom: 8px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        #button:hover {
-            background-color: black;
+        .button:last-child {
+            margin-right: 0px;
+        }
+
+        .button:hover {
+            background-color: rgb(100,100,100)
+        }
+
+        .kc_fab_main_btn {
+            background-color: rgb(169,169,169);
+            width: 60px;
+            height: 60px;
+            border-radius: 100%;
+            border: none;
+            outline: none;
+            color: #FFF;
+            font-size: 36px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+            transition: .3s;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: +10
+        }
+
+        .kc_fab_main_btn:focus, .kc_fab_main_btn:hover {
+            border-width: 2px;
+            border-color: black;
+            border-style: solid;
+            color: rgb(10,10,10);
+            z-index: +10
+        }
+
+        .kc_fab_main_btn:focus + .message, .kc_fab_main_btn:hover + .message {
+            display: flex;
         }
     </style>
 </head>
-
-<div>
-    <textarea id="inputText"></textarea>
-    <div id="button"></div>
+<div id="app">
+    <textarea id="inputText" ondrop="dropHandler(event);" ondragenter="ondragenterHandler(event)" ; ondragleave="ondragleaveHandler(event);"></textarea>
+    <div id="buttons">
+        <div id="button" class="button"></div>
+        <div id="button_02" class="button"></div>
+        <div id="button_03" class="button button-last"></div>
+    </div>
     <textarea id="outputText"></textarea>
+    <button class="kc_fab_main_btn">?</button>
+    <div class="message">
+        <div>
+            <h3>1. Open assembly with Teamcenter Visualisation Mockup </h3>
+            <h3>2. Expand the structure </h3>
+            <h3>3. File > Export... </h3>
+            <h3>4. Select Options plmxml </h3>
+            <h3>5. Export file </h3>
+            <h3>6. Drag and drop the .plmxml file to the textbox <h3>
+            <h3>7. Click on the first button<h3>
+        </div
+    </div>
 </div>
 <script>
 
@@ -89,7 +176,6 @@
         )
     }
 </script>
-
 <script>
 
     function parseXml(xml) {
@@ -392,4 +478,55 @@
 
         document.querySelector("#outputText").value = strOutput;
     }
+</script>
+<script>
+
+    function readSingleFile(e) {
+        let f = e.dataTransfer.files[0];
+        let r = new FileReader();
+        r.onload = function(e) {
+            var contents = e.target.result;
+            inputText.value = contents;
+        }
+        r.readAsText(f);
+    }
+
+    function dropHandler(ev) {
+        console.log('File(s) dropped');
+        ev.preventDefault();
+        document.querySelector('#inputText').classList.remove("highlightedLine");
+        if (ev.dataTransfer.items) {
+            // Use DataTransferItemList interface to access the file(s)
+            for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+                // If dropped items aren't files, reject them
+                if (ev.dataTransfer.items[i].kind === 'file') {
+                    var file = ev.dataTransfer.items[i].getAsFile();
+                    console.log('... file[' + i + '].name = ' + file.name);
+                    console.log(event.target.baseURI);
+                    let uri = event.target.baseURI;
+                    readSingleFile(ev);
+                }
+            }
+        } else {
+            // Use DataTransfer interface to access the file(s)
+            for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+                console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
+                fichero = file;
+            }
+        }
+    }
+
+    function ondragenterHandler(e) {
+        e.preventDefault();
+        console.log('File(s) entered drop zone');
+        document.querySelector("#inputText").classList.add("highlightedLine");
+    }
+
+    function ondragleaveHandler(e) {
+        e.preventDefault();
+        console.log('File(s) left drop zone');
+        document.querySelector("#inputText").classList.remove("highlightedLine");
+    }
+
+    document.getElementById('inputText').addEventListener('change', readSingleFile, false);
 </script>
