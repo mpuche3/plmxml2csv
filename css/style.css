@@ -1,0 +1,120 @@
+*:focus {
+    outline: none;
+}
+
+html {
+    display: flex;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-grow: 1;
+    margin: 0px;
+}
+
+#app {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    margin: 8px;
+}
+
+textarea {
+    padding: 5px;
+    flex-grow: 1;
+    resize: none;
+    white-space: nowrap;
+    overflow: auto;
+}
+
+.highlightedLine {
+    border: 1px solid black;
+    border-style: dashed;
+}
+
+#buttons {
+    margin-right: 8px;
+    margin-left: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.button:hover {
+    background-color: rgb(100,100,100)
+}
+
+.button {
+    cursor: pointer;
+    width: 30px;
+    height: 100%;
+    background-color: grey;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button:last-child {
+    margin-right: 0px;
+}
+
+.message-container {
+    display: flex;
+    position: fixed;
+    bottom: 29px;
+    right: 29px;
+    border: 1px solid rgba(169,169,169,0);
+    width: 58px;
+    height: 58px;
+    background-color: rgba(220,220,220, 0.95);
+    transition: 0.4s;
+    border-radius: 30px;
+}
+
+.message-container-on {
+    border-color: rgba(0, 0, 0, 1);
+    height: calc(100% - 60px);
+    width: calc(100% - 60px);
+    border-radius: 0%;
+}
+
+.message {
+    display: none;
+}
+
+.message-on {
+    display: flex;
+    margin-left: 30px;
+}
+
+#close {
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 12px;
+}
+
+.kc_fab_main_btn {
+    cursor: pointer;
+    background-color: rgba(169,169,169,0.8);
+    width: 60px;
+    height: 60px;
+    border-color: rgba(0,0,0,0);
+    color: #FFF;
+    font-size: 36px;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: +10;
+    border-radius: 30px;
+}
+
+.kc_fab_main_btn:hover {
+    background-color: rgba(120,120,120,0.8);
+}
+
+.kc_fab_main_btn-message-on {
+    display: none;
+}
