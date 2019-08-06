@@ -20,6 +20,11 @@ body {
     margin: 8px;
 }
 
+*::placeholder {
+  font-size: 1.5em;
+  text-align: center;
+}
+
 textarea {
     padding: 5px;
     flex-grow: 1;
@@ -31,6 +36,21 @@ textarea {
 .highlightedLine {
     border: 1px solid black;
     border-style: dashed;
+}
+
+#message-drop-here {
+    display:block;
+    position: fixed;
+    top: 30px;
+    left: 30px;
+}
+
+#box--icon{
+    width: 150px;
+    height: 150px;
+    fill: rgba(220, 220, 220, 0.45);
+    display: block;
+    margin-bottom: 40px;
 }
 
 #buttons {
