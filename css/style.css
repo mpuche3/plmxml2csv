@@ -23,6 +23,7 @@ body {
 *::placeholder {
   font-size: 1.5em;
   text-align: center;
+  line-height: 100px;
 }
 
 textarea {
@@ -114,6 +115,16 @@ textarea {
     position: absolute;
     top: 0;
     right: 12px;
+    color: grey;
+}
+
+#close:hover {
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 12px;
+    color: rgb(0, 0, 0);
 }
 
 .kc_fab_main_btn {
