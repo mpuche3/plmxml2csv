@@ -70,22 +70,10 @@ function run(xml) {
     }).sort((a, b) => a.name.localeCompare(b.name));
 
     topNode = prodRevViewObj['#' + productRevisionView[0]['@id']];
-    console.log(topNode);
-
-    let strOutput = '';
-    for (const part of prodRevView) {
-        if (part.children !== undefined) {
-            strOutput += '\n'
-            strOutput += part.name + '\n'
-            for (child of part.children) {
-                strOutput += ">>> " + child.part.name + '|' + child.qty + '\n'
-            }
-        }
-    }
-    return strOutput;
+    return topNode;
 }
 
-function printOutPartRec (part, arrOutput = []) {
+function printOutPartRec(part, arrOutput = []) {
     if (part.children === undefined || part.children.length === 0) return;
     arrOutput.push('');
     arrOutput.push(`### ${part.name}`);
@@ -98,9 +86,34 @@ function printOutPartRec (part, arrOutput = []) {
     return arrOutput.join('\n');
 }
 
+function printOutPartOrdered(topNode) {
+    let level = 0;
+    let bucket = []
+    bucket[0] = [topNode];
+    let strOutput = '';
+    while (bucket[level] !== undefined && bucket[level].length !== 0) {
+        bucket[level + 1] = [];
+        for (let part of bucket[level]) {
+            if (part.children !== undefined) {
+                strOutput += '\n';
+                strOutput += `### ${part.name}\n`;
+                for (let child of part.children) {
+                    strOutput += `>>> ${child.part.name}, qty: ${child.qty}\n`;
+                }
+                for (let child of part.children) {
+                    bucket[level + 1].push(child.part);
+                }
+            }
+        }
+        level +=1;
+    }
+    return strOutput;
+}
+
 document.querySelector("#button").onclick = event => {
     const xml = document.querySelector('#inputText').value;
-    const strOutput = run(xml);
-    console.log(printOutPartRec(topNode))
+    const topNode = run(xml);
+    const strOutput = printOutPartOrdered(topNode);
+    console.log(topNode);
     document.querySelector("#outputText").value = strOutput;
 }
