@@ -18,7 +18,7 @@ function addQty(arr, id) {
     }
     return children;
 }
-
+let topNode;
 
 function run(xml) {
     const input = xml2json(parseXml(xml));
@@ -69,7 +69,7 @@ function run(xml) {
         return x;
     }).sort((a, b) => a.name.localeCompare(b.name));
 
-    const topNode = prodRevViewObj['#' + productRevisionView[0]['@id']];
+    topNode = prodRevViewObj['#' + productRevisionView[0]['@id']];
     console.log(topNode);
 
     let strOutput = '';
@@ -88,18 +88,19 @@ function run(xml) {
 function printOutPartRec (part, arrOutput = []) {
     if (part.children === undefined || part.children.length === 0) return;
     arrOutput.push('');
-    arrOutput.push(`### ${part.name)}`);
-    for (child in part.children) {
+    arrOutput.push(`### ${part.name}`);
+    for (let child of part.children) {
         arrOutput.push(`>>> ${child.part.name}, qty: ${child.qty}`);
     }
-    for (child in part.children) {
+    for (let child of part.children) {
         printOutPartRec(child.part, arrOutput);
     }
+    return arrOutput.join('\n');
 }
 
 document.querySelector("#button").onclick = event => {
-
     const xml = document.querySelector('#inputText').value;
     const strOutput = run(xml);
+    console.log(printOutPartRec(topNode))
     document.querySelector("#outputText").value = strOutput;
 }
