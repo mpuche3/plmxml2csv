@@ -20,7 +20,7 @@ function addQty(arr, id) {
 }
 
 
-function run() {
+function run(xml) {
     const input = xml2json(parseXml(xml));
     const productInstance = input.PLMXML.ProductDef.InstanceGraph.ProductInstance
     const productRevisionView = input.PLMXML.ProductDef.InstanceGraph.ProductRevisionView
@@ -69,7 +69,8 @@ function run() {
         return x;
     }).sort((a, b) => a.name.localeCompare(b.name));
 
-    console.log(prodRevView);
+    const topNode = prodRevViewObj['#' + productRevisionView[0]['@id']];
+    console.log(topNode);
 
     let strOutput = '';
     for (const part of prodRevView) {
@@ -84,12 +85,21 @@ function run() {
     return strOutput;
 }
 
+function printOutPartRec (part, arrOutput = []) {
+    if (part.children === undefined || part.children.length === 0) return;
+    arrOutput.push('');
+    arrOutput.push(`### ${part.name)}`);
+    for (child in part.children) {
+        arrOutput.push(`>>> ${child.part.name}, qty: ${child.qty}`);
+    }
+    for (child in part.children) {
+        printOutPartRec(child.part, arrOutput);
+    }
+}
 
 document.querySelector("#button").onclick = event => {
 
     const xml = document.querySelector('#inputText').value;
-
-
-    strOutput = run(xml);
+    const strOutput = run(xml);
     document.querySelector("#outputText").value = strOutput;
 }
