@@ -4,7 +4,10 @@ document.querySelector('#inputText').addEventListener('drop', e => {
     if (e.dataTransfer.items) {
         let f = e.dataTransfer.files[0];
         let r = new FileReader();
-        r.onload = e => inputText.value = e.target.result;
+        r.onload = e => {
+            inputText.value = e.target.result;
+            document.querySelector("#button").click();
+        }
         r.readAsText(f);
     } else {
         for (var i = 0; i < e.dataTransfer.files.length; i++) {
@@ -12,6 +15,7 @@ document.querySelector('#inputText').addEventListener('drop', e => {
             fichero = file;
         }
     }
+    
 }, false);
 
 document.querySelector('#inputText').addEventListener('dragenter', e => {
