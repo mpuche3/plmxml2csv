@@ -1,4 +1,6 @@
 # plmxml2csv
+# It did work!
+
 Delimiter in .csv = "|"
 
 ![alt text](https://github.com/mpuche3/plmxml2csv/blob/master/pic/pic_01.PNG)
