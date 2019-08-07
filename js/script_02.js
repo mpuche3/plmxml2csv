@@ -18,7 +18,6 @@ function addQty(arr, id) {
     }
     return children;
 }
-let topNode;
 
 function run(xml) {
     const input = xml2json(parseXml(xml));
