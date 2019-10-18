@@ -1,0 +1,25 @@
+{
+  "name": "plmxml2csv",
+  "version": "1.0.0",
+  "description": "Delimiter in .csv = \"|\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mpuche3/plmxml2csv.git"
+  },
+  "author": "Miguel Puche",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mpuche3/plmxml2csv/issues"
+  },
+  "homepage": "https://github.com/mpuche3/plmxml2csv#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "http": "0.0.0",
+    "path": "^0.12.7",
+    "socket.io": "^2.3.0"
+  }
+}
