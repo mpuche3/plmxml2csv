@@ -1,3 +1,5 @@
+// 
+
 document.querySelector('#inputText').addEventListener('drop', e => {
     e.preventDefault();
     document.querySelector('#inputText').classList.remove("highlightedLine");
